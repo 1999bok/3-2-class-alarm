@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한얼중학교 3학년 2반 학급 안내장</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white/10 p-3 rounded-2xl backdrop-blur-md border border-white/20">
+                        <i class="fa-solid font-bold fa-school text-3xl text-amber-300"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-amber-400 text-slate-900 text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase">2026학년도</span>
+                            <span class="text-indigo-200 text-sm font-medium">한얼중학교</span>
+                        </div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-1">3학년 2반 알림장</h1>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 bg-indigo-800/50 p-2.5 rounded-xl border border-indigo-400/30 self-start md:self-auto">
+                    <i class="fa-regular fa-calendar-check text-amber-300 text-lg"></i>
+                    <span id="current-date-display" class="text-sm font-medium">2026년 10월 27일 (화요일)</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        
+        <!-- Top Banner / Notice -->
+        <div class="mb-8 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm flex items-start gap-3">
+            <i class="fa-solid fa-bullhorn text-amber-600 text-xl mt-0.5 flex-shrink-0"></i>
+            <div>
+                <h3 class="font-bold text-amber-900">오늘의 학급 주요 알림</h3>
+                <p class="text-amber-800 text-sm mt-1">
+                    이번 주 금요일은 2학기 intermediate 수행평가 마감일입니다. 제출 기한을 꼭 준수해 주세요!
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Meals & Attendance (2 Cols wide on desktop) -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Section 1: 오늘의 급식 ( 공공 API / Mock Data 연결 ) -->
+                <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 transition-all hover:shadow-md">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                                <i class="fa-solid fa-utensils text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-800">오늘의 급식 메뉴</h2>
+                                <p class="text-xs text-slate-500">나이스(NEIS) 교육정보 개방 포털 API 연동</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="date" id="meal-date-picker" class="border border-slate-300 rounded-lg text-xs px-2.5 py-1.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <button id="btn-fetch-meal" onclick="loadMealData()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1">
+                                <i class="fa-solid fa-rotate-right"></i> 조회
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Meal Card Content -->
+                    <div class="mt-6" id="meal-container">
+                        <!-- Loading State -->
+                        <div id="meal-loading" class="hidden py-8 text-center text-slate-400">
+                            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-orange-500"></i>
+                            <p class="text-sm">급식 정보를 불러오는 중입니다...</p>
+                        </div>
+
+                        <!-- Meal Content -->
+                        <div id="meal-content" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- JS Inject -->
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+                        <span><i class="fa-solid fa-circle-info mr-1"></i> 알레르기 정보: ①난류 ②우유 ③메밀 ④땅콩 ⑤대두 ⑥밀 ⑦게 ⑧새우 ⑨돼지고기</span>
+                    </div>
+                </section>
+
+                <!-- Section 2: 이번 주 수행평가 일정 -->
+                <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 transition-all hover:shadow-md">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+                                <i class="fa-solid fa-file-pen text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-800">이번 주 수행평가 일정</h2>
+                                <p class="text-xs text-slate-500">제출 기한 및 과목별 세부 일정</p>
+                            </div>
+                        </div>
+                        <span class="bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-md border border-blue-200">
+                            이번 주 총 <strong id="assessment-count">3</strong>건
+                        </span>
+                    </div>
+
+                    <div class="mt-6 space-y-3" id="assessment-list">
+                        <!-- Assessment items will be rendered via JS -->
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Right Column: 지각생 현황 & 학급 공지사항 -->
+            <div class="space-y-8">
+                
+                <!-- Section 3: 지각생 / 출석 현황 -->
+                <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 transition-all hover:shadow-md">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600">
+                                <i class="fa-solid fa-user-clock text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800">지각생 명단</h2>
+                                <p class="text-xs text-slate-500" id="tardy-date-label">오늘의 지각 현황</p>
+                            </div>
+                        </div>
+                        <span id="tardy-count-badge" class="bg-rose-50 text-rose-600 text-xs font-bold px-2.5 py-1 rounded-full border border-rose-200">
+                            0명
+                        </span>
+                    </div>
+
+                    <div class="mt-4">
+                        <div id="tardy-list" class="space-y-2.5">
+                            <!-- JS Inject -->
+                        </div>
+                    </div>
+
+                    <div class="mt-5 p-3 bg-slate-50 rounded-xl text-xs text-slate-500 space-y-1">
+                        <p class="font-semibold text-slate-700"><i class="fa-solid fa-clock text-amber-500 mr-1"></i> 등교 시간 안내</p>
+                        <p>· 8시 20분까지 교실 입실 완료</p>
+                        <p>· 사유 지각은 담임선생님께 사전 연락 바랍니다.</p>
+                    </div>
+                </section>
+
+                <!-- Section 4: 학급 공지 게시판 -->
+                <section class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 transition-all hover:shadow-md">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                                <i class="fa-solid fa-clipboard-list text-lg"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800">학급 공지사항</h2>
+                                <p class="text-xs text-slate-500">주요 준비물 및 행사</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 space-y-3" id="notice-list">
+                        <!-- JS Inject -->
+                    </div>
+                </section>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-xs space-y-2">
+            <p class="font-medium text-slate-300">한얼중학교 3학년 2반 공식 알림장 웹사이트</p>
+            <p>담임교사 연락처: 교무실 055-xxx-xxxx | 카카오톡 채널: @한얼중3-2</p>
+            <p class="text-slate-600">© 2026 HanEol Middle School Class 3-2. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Data Structures
+        const state = {
+            today: '2026-10-27',
+            assessments: [
+                { id: 1, subject: '국어', title: '현대 소설 독후감 작성 및 비평문 쓰기', dueDate: '2026-10-28', status: 'D-1', type: '서술형' },
+                { id: 2, subject: '수학', title: '이차방정식과 활용 문제 풀이 제출', dueDate: '2026-10-29', status: 'D-2', type: '풀이과정' },
+                { id: 3, subject: '영어', title: '3분 영어 1분 말하기 스피치 발표', dueDate: '2026-10-30', status: 'D-3', type: '구술' },
+                { id: 4, subject: '과학', title: '지구와 달의 운동 모형 실험 보고서', dueDate: '2026-11-02', status: 'D-6', type: '실험보고서' }
+            ],
+            tardyStudents: [
+                { name: '김철수', number: 4, time: '08:26', reason: '버스 지연' },
+                { name: '박영희', number: 12, time: '08:31', reason: '개인 사정' }
+            ],
+            notices: [
+                { title: '내일(수) 체육복 착용 안내', content: '야외 체육 수업 예정이므로 전원 동복 체육복을 착용하고 등교하세요.', date: '10/27', badge: '중요' },
+                { title: '학부모 상담 주간 신청서 제출', content: '배부해 드린 가정통신문 확인 후 금요일까지 제출해 주세요.', date: '10/26', badge: '가정통신문' },
+                { title: '학급 자율활동 도서 기증 안내', content: '학급 문고에 비치할 도서를 자율적으로 받습니다.', date: '10/25', badge: '일반' }
+            ]
+        };
+
+        // Simulated/API Meal Loader
+        async function loadMealData() {
+            const dateInput = document.getElementById('meal-date-picker').value;
+            const container = document.getElementById('meal-content');
+            const loading = document.getElementById('meal-loading');
+
+            container.innerHTML = '';
+            loading.classList.remove('hidden');
+
+            // Format YYYYMMDD
+            const formattedDate = dateInput.replace(/-/g, '');
+
+            try {
+                // NEIS Open API Call (Educational Open Data Portal)
+                // Defaulting to sample school info or fallback mock if API fails/cors restriction
+                const ATPT_OFCDC_SC_CODE = 'S10'; // Gyeongnam Office of Education
+                const SD_SCHUL_CODE = '9010000'; // Example School Code
+                const apiUrl = `https://open.neis.go.kr/hub/mealServiceDietInfo?KEY=sample&Type=json&pIndex=1&pSize=100&ATPT_OFCDC_SC_CODE=${ATPT_OFCDC_SC_CODE}&SD_SCHUL_CODE=${SD_SCHUL_CODE}&MLSV_YMD=${formattedDate}`;
+
+                let response = await fetch(apiUrl);
+                let data = await response.json();
+
+                loading.classList.add('hidden');
+
+                if (data.mealServiceDietInfo && data.mealServiceDietInfo[1].row.length > 0) {
+                    const row = data.mealServiceDietInfo[1].row[0];
+                    renderMealUI(row.DDISH_NM, row.CAL_INFO, row.NTR_INFO);
+                } else {
+                    // Fallback Mock Data for demo purpose when API date doesn't return or CORS
+                    renderMockMealData(dateInput);
+                }
+            } catch (error) {
+                console.log('API Fetch failed, displaying fallback mock meal info.');
+                loading.classList.add('hidden');
+                renderMockMealData(dateInput);
+            }
+        }
+
+        function renderMockMealData(dateStr) {
+            const mockMenu = {
+                '2026-10-27': {
+                    dishes: ['친환경 현미밥', '차돌박이 된장찌개 ⑤⑥', '안동찜닭 ⑤⑥⑮', '시금치 나물무침', '배추김치 ⑨', '샤인머스캣'],
+                    calories: '720.5 kcal'
+                },
+                '2026-10-28': {
+                    dishes: ['발아현미밥', '쇠고기 미역국 ⑤⑥', '돈까스 & 브라운소스 ①⑤⑥⑩', '양배추 샐러드 ①⑤', '포기김치 ⑨', '유기농 식혜'],
+                    calories: '785.0 kcal'
+                }
+            };
+
+            const dayData = mockMenu[dateStr] || {
+                dishes: ['친환경 쌀밥', '콩나물국 ⑤', '제육볶음 ⑤⑥⑩', '계란말이 ①', '배추김치 ⑨', '제철 과일'],
+                calories: '710.0 kcal'
+            };
+
+            const container = document.getElementById('meal-content');
+            container.innerHTML = `
+                <div class="bg-orange-50/60 border border-orange-100 rounded-xl p-4 space-y-2">
+                    <div class="flex items-center justify-between text-xs font-bold text-orange-800">
+                        <span><i class="fa-solid fa-bowl-rice text-orange-500 mr-1"></i> 점심 식단</span>
+                        <span class="bg-orange-200/70 text-orange-900 px-2 py-0.5 rounded-md">${dayData.calories}</span>
+                    </div>
+                    <ul class="text-sm text-slate-700 space-y-1.5 pt-1">
+                        ${dayData.dishes.map(dish => `<li class="flex items-center gap-1.5"><i class="fa-solid fa-angle-right text-xs text-orange-400"></i> ${dish}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="bg-slate-50 border border-slate-200/60 rounded-xl p-4 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-600 mb-2"><i class="fa-solid fa-heart-pulse text-rose-500 mr-1"></i> 영양 및 식생활 안내</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">
+                            매일 신선한 국산 재료를 사용하여 균형 잡힌 영양을 제공합니다. 알레르기 유발 물질 번호를 확인하여 시식에 유의하시기 바랍니다.
+                        </p>
+                    </div>
+                    <div class="mt-3 pt-2 border-t border-slate-200/60 text-right">
+                        <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200">
+                            <i class="fa-solid fa-leaf mr-1"></i> 친환경 식재료 사용
+                        </span>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMealUI(dishStr, calStr, ntrStr) {
+            const container = document.getElementById('meal-content');
+            // Clean up html tags in NEIS response
+            const cleanedDishes = dishStr.replace(/<br\/>/g, '\n').split('\n');
+
+            container.innerHTML = `
+                <div class="bg-orange-50/60 border border-orange-100 rounded-xl p-4 space-y-2">
+                    <div class="flex items-center justify-between text-xs font-bold text-orange-800">
+                        <span><i class="fa-solid fa-bowl-rice text-orange-500 mr-1"></i> 점심 식단</span>
+                        <span class="bg-orange-200/70 text-orange-900 px-2 py-0.5 rounded-md">${calStr || '700 kcal'}</span>
+                    </div>
+                    <ul class="text-sm text-slate-700 space-y-1.5 pt-1">
+                        ${cleanedDishes.map(dish => `<li class="flex items-center gap-1.5"><i class="fa-solid fa-angle-right text-xs text-orange-400"></i> ${dish}</li>`).join('')}
+                    </ul>
+                </div>
+                <div class="bg-slate-50 border border-slate-200/60 rounded-xl p-4 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-600 mb-2"><i class="fa-solid fa-heart-pulse text-rose-500 mr-1"></i> 영양 정보</h4>
+                        <p class="text-xs text-slate-500 leading-relaxed">${ntrStr ? ntrStr.substring(0, 100) + '...' : '영양 성분이 균형 있게 제공됩니다.'}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render Assessment List
+        function renderAssessments() {
+            const container = document.getElementById('assessment-list');
+            document.getElementById('assessment-count').innerText = state.assessments.length;
+
+            container.innerHTML = state.assessments.map(item => `
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/70 hover:border-indigo-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-start gap-3">
+                        <span class="bg-indigo-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg mt-0.5">
+                            ${item.subject}
+                        </span>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-800">${item.title}</h4>
+                            <div class="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                                <span><i class="fa-regular fa-clock mr-1"></i>마감일: ${item.dueDate}</span>
+                                <span>•</span>
+                                <span class="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded">${item.type}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="self-end sm:self-center">
+                        <span class="bg-rose-100 text-rose-700 font-extrabold text-xs px-3 py-1.5 rounded-full border border-rose-200">
+                            ${item.status}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Tardy Students
+        function renderTardyList() {
+            const container = document.getElementById('tardy-list');
+            const countBadge = document.getElementById('tardy-count-badge');
+            
+            countBadge.innerText = `${state.tardyStudents.length}명`;
+
+            if (state.tardyStudents.length === 0) {
+                container.innerHTML = `
+                    <div class="py-6 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                        <i class="fa-solid fa-circle-check text-emerald-500 text-xl mb-1"></i>
+                        <p class="text-xs">오늘 지각생이 없습니다. 아주 훌륭합니다!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = state.tardyStudents.map(student => `
+                <div class="flex items-center justify-between p-3 bg-rose-50/50 border border-rose-100 rounded-xl">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-xs">
+                            ${student.number}
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">${student.name}</p>
+                            <p class="text-xs text-slate-500">입실: ${student.time} (${student.reason})</p>
+                        </div>
+                    </div>
+                    <span class="text-xs font-semibold text-rose-600 bg-white px-2 py-1 rounded-md shadow-sm border border-rose-100">
+                        지각
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        // Render Notices
+        function renderNotices() {
+            const container = document.getElementById('notice-list');
+            container.innerHTML = state.notices.map(notice => `
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60 hover:bg-white hover:shadow-sm transition-all space-y-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold ${notice.badge === '중요' ? 'text-rose-600 bg-rose-50 border border-rose-200' : 'text-slate-600 bg-slate-200'} px-2 py-0.5 rounded-md">
+                            ${notice.badge}
+                        </span>
+                        <span class="text-xs text-slate-400">${notice.date}</span>
+                    </div>
+                    <h4 class="text-sm font-bold text-slate-800 pt-1">${notice.title}</h4>
+                    <p class="text-xs text-slate-600 leading-relaxed">${notice.content}</p>
+                </div>
+            `).join('');
+        }
+
+        // Initialize page
+        window.onload = function() {
+            // Set Date Picker Default Today
+            const datePicker = document.getElementById('meal-date-picker');
+            datePicker.value = state.today;
+
+            // Load all sections
+            loadMealData();
+            renderAssessments();
+            renderTardyList();
+            renderNotices();
+        };
+    </script>
+</body>
+</html>
